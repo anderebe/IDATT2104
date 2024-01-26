@@ -1,31 +1,64 @@
-//
-// Created by Emil on 26/01/2024.
-//
-
 #include <iostream>
 #include <thread>
+#include <functional>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
 
-class Workers{
-    private:
-    
+class Workers {
+private:
+    std::vector<std::thread> threads;
+    std::queue<std::function<void()>> tasks;
+    std::mutex mutex;
+    std::condition_variable cv;
+    bool stop = false;
 
-    public:
+public:
     Workers(int n) {
-        // Create n internal threads
+        for (int i = 0; i < n; i++) {
+            threads.emplace_back([this]() {
+                while (true) {
+                    std::function<void()> task;
+                    {
+                        std::unique_lock<std::mutex> lock(mutex);
+                        cv.wait(lock, [this]() { return stop || !tasks.empty(); });
+                        if (stop && tasks.empty()) {
+                            return;
+                        }
+                        task = std::move(tasks.front());
+                        tasks.pop();
+                    }
+                    task();
+                }
+            });
+        }
     }
-    
+
     Workers event_loop(int n) {
-        // Create n internal threads
+        return Workers(n);
     }
 
     void start() {
-        // Start all the internal threads
+        // No additional implementation needed
     }
+
     void post(std::function<void()> task) {
-        // Add task to the queue of one of the internal threads
+        {
+            std::lock_guard<std::mutex> lock(mutex);
+            tasks.push(task);
+        }
+        cv.notify_one();
     }
+
     void join() {
-        // Join all the internal threads
+        {
+            std::lock_guard<std::mutex> lock(mutex);
+            stop = true;
+        }
+        cv.notify_all();
+        for (auto& thread : threads) {
+            thread.join();
+        }
     }
 };
 
@@ -37,8 +70,6 @@ int main() {
 
     worker_threads.post([] {
         // Task A
-
-        
     });
 
     worker_threads.post([] {
@@ -57,7 +88,8 @@ int main() {
         // Might run in parallel with task A and B
     });
 
-    worker_threads.join(); // Calls join() on the worker threadsevent_loop.join(); // Calls join() on the event thread
+    worker_threads.join(); // Calls join() on the worker threads
+    event_loop.join(); // Calls join() on the event thread
 
     return 0;
 }
