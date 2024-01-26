@@ -1,0 +1,3 @@
+/Users/bergan/Library/CloudStorage/OneDrive-NTNU/DataB2/S4/IDATT2104-Nettverksprogramering/OVINGER/PROG1/cmake-build-debug/CMakeFiles/PROG1.dir
+/Users/bergan/Library/CloudStorage/OneDrive-NTNU/DataB2/S4/IDATT2104-Nettverksprogramering/OVINGER/PROG1/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/bergan/Library/CloudStorage/OneDrive-NTNU/DataB2/S4/IDATT2104-Nettverksprogramering/OVINGER/PROG1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
