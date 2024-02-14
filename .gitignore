@@ -7,7 +7,8 @@
 /dataSources/
 /dataSources.local.xml
 
-
+.idea
+.vscode
 build/
 OVING1/make_build-debug/
 OVING2/make_build-debug/
