@@ -1,11 +1,12 @@
-import java.io.PrintWriter;
+package socketServer;
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.*;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.Scanner;
 
-public class SocketClientAuto {
+public class socketClientAuto {
     
     public static void main(String[] args) throws Exception {
         final int PORT = 1250;
@@ -19,10 +20,11 @@ public class SocketClientAuto {
             final int clientNumber = i;
             Thread clientThread = new Thread(() -> {
                 try {
-                    System.out.println("\nClient " + clientNumber + " started\n");
+                    System.out.println("\nClient " + clientNumber + " started");
                     Socket socket = new Socket(HOST, PORT);
                     if (!socket.isConnected()) {
                         System.out.println("Client " + clientNumber + ": Server is not connected");
+                        socket.close();
                         return;
                     }
                     PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -31,11 +33,11 @@ public class SocketClientAuto {
                     String serverResponse;
                     while ((serverResponse = in.readLine()) != null) {
                         System.out.println(serverResponse);
-                        if (serverResponse.contains("Client " + clientNumber + ": Write the first number: ")) {
+                        if (serverResponse.contains("Write the first number: ")) {
                             out.println(1);
-                        } else if (serverResponse.contains("Client " + clientNumber + ": Write the second number: ")) {
+                        } else if (serverResponse.contains("Write the second number: ")) {
                             out.println(2);
-                        } else if (serverResponse.contains("Client " + clientNumber + ": Write either '+' or '-' to add or subtract the numbers: ")) {
+                        } else if (serverResponse.contains("Write either '+' or '-' to add or subtract the numbers: ")) {
                             out.println('+');
                         }
                     }

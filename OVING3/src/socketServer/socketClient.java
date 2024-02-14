@@ -1,6 +1,8 @@
-
-import java.io.*;
-import java.net.*;
+package socketServer;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.Scanner;
 
 public class socketClient {
@@ -10,7 +12,7 @@ public class socketClient {
 
         Socket socket = new Socket(HOST, PORT);
         if(!socket.isConnected()){
-            System.out.println("Server is not connected");
+            System.out.println("\nServer is not connected");
         } 
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));

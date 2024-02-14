@@ -1,30 +1,16 @@
+package socketServer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 
-public class socketServer extends Thread {
-    private Socket client;
-    public socketServer(Socket client) {
-        this.client = client;
+public class socketServerThread extends Thread{
+    private final Socket client;
+    public socketServerThread(Socket newClient) {
+        this.client = newClient;
     }
-
-    public static void main(String[] args) throws IOException {
-        final int PORT = 1250;
-
-        try (ServerSocket server = new ServerSocket(PORT)) {
-            System.out.println("Server started. Waiting..."); 
-             while (true) {
-                Socket client = server.accept();
-                System.out.println("Client connected");
-                Thread clientThread = new Thread(new socketServer(client));
-                clientThread.start();
-            }
-        }
-    }
-
+    
     public void run() {
         try {
             InputStreamReader in = new InputStreamReader(client.getInputStream());
@@ -44,7 +30,8 @@ public class socketServer extends Thread {
                 String operation = bf.readLine();
 
                 int result = operation(num1, num2, operation);
-                out.println("The result is: " + result + "\n");
+                out.println("The result is: " + result);
+                System.out.println("Client from address: " + client.getInetAddress() + ", calculation completed!");
             } catch (NumberFormatException e) {
                 out.println("Invalid number format. Please enter valid integers.\n");
             } catch (IllegalArgumentException e) {
@@ -55,11 +42,10 @@ public class socketServer extends Thread {
             out.close();
             bf.close();
             client.close();
-            System.out.println("Server closing....\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Client disconnected");
+        System.out.println("Client from address: " + client.getInetAddress() + ", disconnected...");
     }
 
     public static int operation(int num1, int num2, String operation) {
@@ -72,3 +58,4 @@ public class socketServer extends Thread {
         }
     }
 }
+
