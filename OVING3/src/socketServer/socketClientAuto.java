@@ -20,6 +20,7 @@ public class socketClientAuto {
             final int clientNumber = i;
             Thread clientThread = new Thread(() -> {
                 try {
+                    int rounds = 0;
                     System.out.println("\nClient " + clientNumber + " started");
                     Socket socket = new Socket(HOST, PORT);
                     if (!socket.isConnected()) {
@@ -30,6 +31,7 @@ public class socketClientAuto {
                     PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
+                    while(rounds < 11){
                     String serverResponse;
                     while ((serverResponse = in.readLine()) != null) {
                         System.out.println(serverResponse);
@@ -38,8 +40,14 @@ public class socketClientAuto {
                         } else if (serverResponse.contains("Write the second number: ")) {
                             out.println(2);
                         } else if (serverResponse.contains("Write either '+' or '-' to add or subtract the numbers: ")) {
+                            if(rounds == 10){
+                                out.println("exit");
+                                break;
+                            }
                             out.println('+');
-                        }
+                        } 
+                    }
+                    rounds++;
                     }
 
                     socket.close();
