@@ -12,3 +12,5 @@
 build/
 OVING1/make_build-debug/
 OVING2/make_build-debug/
+OVING3/make_build-debug/
+OVING3/bin/*.class
