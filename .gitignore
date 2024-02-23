@@ -7,10 +7,13 @@
 /dataSources/
 /dataSources.local.xml
 
+.DS_STORE
 .idea
 .vscode
 build/
 OVING1/make_build-debug/
 OVING2/make_build-debug/
 OVING3/make_build-debug/
-OVING3/bin/*.class
+OVING3/bin
+OVING4/bin
+OVING4/src/SSH/examplestore
