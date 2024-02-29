@@ -1,4 +1,4 @@
-package SSH;
+package SSL;
 
 import java.io.BufferedReader;
 import java.io.IOException;
