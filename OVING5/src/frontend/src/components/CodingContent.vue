@@ -9,10 +9,10 @@
           class="coding-language"
           ref="coding-language"
         >
-          <option value="javascript">JavaScript</option>
-          <option value="python">Python</option>
-          <option value="java">Java</option>
+          <option value="Java">Java</option>
+          <option value="Python">Python</option>
           <option value="C">C</option>
+          <option value="CPP">C++</option>
         </select>
       </a>
 

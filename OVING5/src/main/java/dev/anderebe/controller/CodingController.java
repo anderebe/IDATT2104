@@ -39,7 +39,6 @@ public class CodingController {
             logger.info("Request received to run code in " + language);
             logger.info("Compiling....");
             String result = CodingService.run(code, language);
-            logger.info("Compiling was succesfull!");
             CodingResponse response = new CodingResponse(code, language, result);
             String jsonResponse = objectMapper.writeValueAsString(response);
             logger.info("Returned result of running code in " + language);
