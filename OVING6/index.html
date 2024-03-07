@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oving 6: Messages on Web</title>
+    <style>
+        *, #app {
+            font-family: Avenir, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-align: center;
+            color: #2c3e50;
+            grid-row: auto;
+        }
+        /* Global styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url("assets/images/landscapecss2.jpg"); /* Replace with your actual background image URL */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Chat container styles */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .chat-container {
+            background-color: rgba(255, 255, 255, 0.4); /* Semi-transparent white background */
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 40vh;
+            overflow-y: auto;
+            max-height: 80vh; 
+        }
+
+        /* Message styles */
+        .message {
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        .user-message {
+            background-color: #cfe2f3; 
+        }
+
+        .other-message {
+            background-color: #FFDAB9;
+        }
+
+        .sender {
+            font-weight: bold;
+            margin-bottom: 5px;
+            align-self: center;
+        }
+
+        /* Input container styles */
+        .input-container {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-message {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .send-button {
+            background-color: #007bff; /* Blue send button */
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .send-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        h2 {
+            margin-top: 15vh;
+            color: white;
+            font-weight: 700;
+            text-align: center;
+            cursor: default;
+        }
+    </style>
+    <script>
+        window.onload = function() {
+            const sendButton = document.querySelector(".send-button");
+            const inputMessage = document.querySelector(".input-message");
+            const chatContainer = document.querySelector(".chat-container");
+
+            let ws = new WebSocket('ws://localhost:3001');
+
+            function sendMessage() {
+                const message = inputMessage.value;
+                if (message.trim() !== "") {
+                    const messageElement = document.createElement("div");
+                    messageElement.classList.add("message", "user-message");
+                    messageElement.innerHTML = `
+                    <p class="sender">You:</p> 
+                    <p>${message} </p>
+                    `;
+                    chatContainer.appendChild(messageElement);
+                    inputMessage.value = "";
+                }
+            }
+
+            sendButton.addEventListener("click", sendMessage);
+            inputMessage.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                    sendMessage();
+                }
+            });
+
+            function scrollToBottom() {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            chatContainer.addEventListener("load", scrollToBottom);
+            const observer = new MutationObserver(scrollToBottom);
+            observer.observe(chatContainer, { childList: true });
+        };
+
+        
+        ws.onmessage = event => {
+            const message = event.data;
+            if (message.trim() !== "") {
+                const messageElement = document.createElement("div");
+                messageElement.classList.add("message", "other-message");
+                messageElement.innerHTML = `
+                <p class="sender">Other:</p> 
+                <p>${message} </p>
+                `;
+                chatContainer.appendChild(messageElement);
+                inputMessage.value = "";
+            }
+            alert('Message from server: ' + event.data);
+        }
+        ws.onopen = () => {
+            ws.send('hello');
+    }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Oving 6: Messages in Web</h2>
+        <div class="chat-container">
+        </div>
+        <div class="input-container">
+            <input type="text" class="input-message" placeholder="Type your message here...">
+            <button class="send-button">Send</button>
+        </div>
+    </div>
+</body>
+
+</html>
