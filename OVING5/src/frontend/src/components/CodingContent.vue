@@ -40,7 +40,7 @@ import axios from "axios";
 export default {
   data() {
     return {
-      selectedLanguage: "java",
+      selectedLanguage: "Java",
       inputText: "",
       outputs: [],
     };
