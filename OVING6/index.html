@@ -14,18 +14,17 @@
             color: #2c3e50;
             grid-row: auto;
         }
-        /* Global styles */
+
         body {
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            background-image: url("assets/images/landscapecss2.jpg"); /* Replace with your actual background image URL */
+            background-image: url("assets/images/landscapecss2.jpg"); 
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
         }
 
-        /* Chat container styles */
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -42,6 +41,7 @@
             height: 40vh;
             overflow-y: auto;
             max-height: 80vh; 
+            position: relative; /* Added position relative */
         }
 
         /* Message styles */
@@ -102,75 +102,102 @@
             text-align: center;
             cursor: default;
         }
-    </style>
-    <script>
-        window.onload = function() {
-            const sendButton = document.querySelector(".send-button");
-            const inputMessage = document.querySelector(".input-message");
-            const chatContainer = document.querySelector(".chat-container");
 
-            let ws = new WebSocket('ws://localhost:3001');
-
-            function sendMessage() {
-                const message = inputMessage.value;
-                if (message.trim() !== "") {
-                    const messageElement = document.createElement("div");
-                    messageElement.classList.add("message", "user-message");
-                    messageElement.innerHTML = `
-                    <p class="sender">You:</p> 
-                    <p>${message} </p>
-                    `;
-                    chatContainer.appendChild(messageElement);
-                    inputMessage.value = "";
-                }
-            }
-
-            sendButton.addEventListener("click", sendMessage);
-            inputMessage.addEventListener("keydown", function(event) {
-                if (event.key === "Enter") {
-                    sendMessage();
-                }
-            });
-
-            function scrollToBottom() {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-            chatContainer.addEventListener("load", scrollToBottom);
-            const observer = new MutationObserver(scrollToBottom);
-            observer.observe(chatContainer, { childList: true });
-        };
-
-        
-        ws.onmessage = event => {
-            const message = event.data;
-            if (message.trim() !== "") {
-                const messageElement = document.createElement("div");
-                messageElement.classList.add("message", "other-message");
-                messageElement.innerHTML = `
-                <p class="sender">Other:</p> 
-                <p>${message} </p>
-                `;
-                chatContainer.appendChild(messageElement);
-                inputMessage.value = "";
-            }
-            alert('Message from server: ' + event.data);
+        .connected-users {
+            opacity: 0.5;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-weight: bold;
         }
-        ws.onopen = () => {
-            ws.send('hello');
-    }
-    </script>
+    </style>
 </head>
 
 <body>
     <div class="container">
         <h2>Oving 6: Messages in Web</h2>
-        <div class="chat-container">
+        <div class="chat-container" id="chat-container">
+            <div class="connected-users">Connected: <span id="connected">0</span></div>
         </div>
         <div class="input-container">
-            <input type="text" class="input-message" placeholder="Type your message here...">
-            <button class="send-button">Send</button>
+            <input type="text" class="input-message" id="input-message" placeholder="Type your message here...">
+            <button class="send-button" onclick="submitForm(event)">Send</button>
         </div>
+        <div id="info"></div>
     </div>
-</body>
 
+    <script>
+        let ws = new WebSocket('ws://localhost:8000', ['json']);
+        const uniqueId = 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+
+        const input = document.getElementById('input-message');
+        const chatContainer = document.getElementById('chat-container');
+        const connected = document.getElementById("connected");
+        const info = document.getElementById("info");
+
+        document.body.style.backgroundImage = "url('https://images.unsplash.com/photo-1525028890579-3145caef2a8c?q=80&w=3088&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')";
+
+        const submitForm = async (e) => {
+            e.preventDefault();
+            if (input.value !== "") {
+                const json = JSON.stringify({ message: input.value, id: uniqueId});
+                ws.send(json);
+                setInfo('Message sent');
+                input.value = "";
+            } else {
+                setInfo('Message cannot be empty');
+            }
+        };
+
+        input.addEventListener('keydown', (event) => {
+            if (event.keyCode === 13) {
+                submitForm(event);
+            }
+        });
+
+        ws.addEventListener("open", () => {
+            setInfo('Connected to server', 2000);
+        });
+
+        ws.addEventListener("message", (event) => {
+            const data = JSON.parse(event.data);
+            console.log(data);
+            if (data.message) {
+                if(uniqueId === data.id)
+                    chatContainer.innerHTML += `<div class="message user-message">
+                    <div class="sender">You: </div>
+                    <div class="content">${data.message}</div>`;
+                else if(uniqueId !== data.id){
+                    chatContainer.innerHTML += `<div class="message other-message">
+                    <div class="sender">Other: </div>
+                    <div class="content">${data.message}</div>`;
+                }
+            } else if (data.connected) {
+                console.log(data.connected);
+                connected.innerHTML = data.connected;
+            }
+        });
+
+        const setInfo = (message, duration = 5000) => {
+            info.innerHTML = message;
+            if (message != "") {
+                setTimeout(() => setInfo(""), duration);
+            }
+        };
+
+        function scrollToBottom() {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            chatContainer.addEventListener("load", scrollToBottom);
+            const observer = new MutationObserver(scrollToBottom);
+            observer.observe(chatContainer, { childList: true });
+
+        // Error logs for background image
+        const backgroundImage = new Image();
+        backgroundImage.src = "https://images.unsplash.com/photo-1525028890579-3145caef2a8c?q=80&w=3088&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+        backgroundImage.onerror = function() {
+            console.error("Failed to load background image");
+        };
+    </script>
+</body>
 </html>
